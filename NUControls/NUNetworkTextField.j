@@ -71,6 +71,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
     int                                         _mode                           @accessors(property=mode);
     int                                         _verticalOffset                 @accessors(property=_verticalOffset);
 
+    BOOL                                        _disableRegexValidation;
     BOOL                                        _doubleClick;
     BOOL                                        _isTableViewNetworktextField;
     BOOL                                        _selectAll;
@@ -143,6 +144,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
     _comesFromPrevious = NO;
     _selectAll = NO;
     _showCancelButton = NO;
+    _disableRegexValidation = NO;
 
     _container = [[CPView alloc] initWithFrame:CGRectMakeZero()];
     _scrollView = [[CPScrollView alloc] initWithFrame:CGRectMakeZero()];
@@ -440,7 +442,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (BOOL)_isIPValue:(id)aValue
 {
-    if (aValue === null || aValue === undefined)
+    if (aValue === null || aValue === undefined || _disableRegexValidation)
         return YES;
 
     aValue = aValue.toString();
@@ -525,7 +527,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (BOOL)_checkValueWithRegex
 {
-    if (!_regexp)
+    if (!_regexp || _disableRegexValidation)
         return YES;
 
     var stringValue = [self stringValue],
@@ -1116,7 +1118,30 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (void)pasteString:(CPString)aString
 {
-    [self setStringValue:aString];
+    var ips = (_mode === NUNetworkIPV6Mode) ? aString.split(@":") : aString.split(@"."),
+        numberPasted = [ips count];
+        number = [_networkElementTextFields count],
+        value = @"",
+        isEmpty = YES;
+
+    for (var i = 0; i < number; i++)
+    {
+        var stringValue = (i < numberPasted) ? ips[i] :"";
+
+        value += stringValue;
+
+        if (stringValue != @"")
+            isEmpty = NO;
+
+        if (i < number - 1)
+            value += [_separatorLabels[i] stringValue];
+    }
+
+    _disableRegexValidation = YES;
+
+    [self setStringValue:isEmpty ? @"" : value];
+
+    _disableRegexValidation = NO;
 
     var textField;
 
