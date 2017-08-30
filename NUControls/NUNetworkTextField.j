@@ -71,6 +71,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
     int                                         _mode                           @accessors(property=mode);
     int                                         _verticalOffset                 @accessors(property=_verticalOffset);
 
+    BOOL                                        _disableRegexValidation;
     BOOL                                        _doubleClick;
     BOOL                                        _isTableViewNetworktextField;
     BOOL                                        _selectAll;
@@ -143,6 +144,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
     _comesFromPrevious = NO;
     _selectAll = NO;
     _showCancelButton = NO;
+    _disableRegexValidation = NO;
 
     _container = [[CPView alloc] initWithFrame:CGRectMakeZero()];
     _scrollView = [[CPScrollView alloc] initWithFrame:CGRectMakeZero()];
@@ -368,6 +370,31 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 #pragma mark -
 #pragma mark IP Utilities
 
+/*  Constructs a string out of the partial/full IP address passed and sets the same
+*/
+- (void)setStringValueOverrideValidation:(CPString)aString
+{
+    var values      = (_mode === NUNetworkIPV6Mode) ? aString.split(/[:/]+/) : aString.split(/[./]+/),
+        countValues = [values count],
+        countFields = [_networkElementTextFields count],
+        value       = @"";
+
+    //build IPAddress string to be set 
+    for (var i = 0; i < countFields; i++)
+    {
+        if (i < countValues)
+            value += values[i];
+
+        if (i < countFields - 1)
+            value += [_separatorLabels[i] stringValue];
+    }
+
+    //disable validation to accept partial IP address. re-enable validation after set
+    _disableRegexValidation = YES;
+    [self setStringValue: (countValues > 0) ? value : @""];
+    _disableRegexValidation = NO;
+}
+
 /*! Returns an array with the digits of the objectValue.
     Call the delegateif there is an error
 */
@@ -440,7 +467,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (BOOL)_isIPValue:(id)aValue
 {
-    if (aValue === null || aValue === undefined)
+    if (aValue === null || aValue === undefined || _disableRegexValidation)
         return YES;
 
     aValue = aValue.toString();
@@ -525,7 +552,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (BOOL)_checkValueWithRegex
 {
-    if (!_regexp)
+    if (!_regexp || _disableRegexValidation)
         return YES;
 
     var stringValue = [self stringValue],
@@ -1116,7 +1143,7 @@ var NUNextFirstResponderNotification = "_NUNextFirstResponderNotification";
 */
 - (void)pasteString:(CPString)aString
 {
-    [self setStringValue:aString];
+    [self setStringValueOverrideValidation:aString];
 
     var textField;
 
