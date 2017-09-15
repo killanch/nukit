@@ -47,6 +47,7 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
     CPButton            _buttonFirstAssign;
     CPButton            _buttonUnassignObject;
     CPButton            _buttonAssignObject;
+    BOOL                _patchEnabled               @accessors(property=patchEnabled);
 }
 
 
@@ -286,9 +287,17 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
 */
 - (@action)_performUnassignObjects:(id)aSender
 {
-    var content = [CPArray arrayWithArray:[self flattenedDataSourceContent]];
-    [content removeObjectsInArray:_currentSelectedObjects];
-    [self assignObjects:content];
+    if (_patchEnabled)
+    {
+        [_currentParent enablePatchRemove];
+        [self assignObjects:_currentSelectedObjects];
+    }
+    else 
+    {
+        var content = [CPArray arrayWithArray:[self flattenedDataSourceContent]];
+        [content removeObjectsInArray:_currentSelectedObjects];
+        [self assignObjects:content];
+    }
 
     [[[NUKit kit] registeredDataViewWithIdentifier:@"popoverConfirmation"] close];
 }
@@ -301,9 +310,18 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
 */
 - (void)didObjectChooser:(NUObjectsChooser)anObjectChooser selectObjects:(CPArray)selectedObjects
 {
-    var content = [CPArray arrayWithArray:[[self flattenedDataSourceContent] copy]];
-    [content addObjectsFromArray:selectedObjects];
-    [self assignObjects:content];
+    if (_patchEnabled)
+    {
+        [_currentParent enablePatchAdd];
+        [self assignObjects:selectedObjects];
+    }
+    else 
+    {
+        var content = [CPArray arrayWithArray:[[self flattenedDataSourceContent] copy]];
+        [content addObjectsFromArray:selectedObjects];
+        [self assignObjects:content];
+    }
+    
     [_chooser closeModulePopover];
 }
 
