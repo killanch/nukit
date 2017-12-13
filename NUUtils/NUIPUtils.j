@@ -191,11 +191,11 @@ function _randomIPv6FromBase(base)
 function firstValidIPv6From(existingCIDRs)
 {
     if (!existingCIDRs || existingCIDRs.length == 0)
-        return _randomIPv6FromBase(2001);
+        return _randomIPv6FromBase(3001);
 
     var candidateCIDR,
         tryNumber = 0,
-        base = 2001;
+        base = 3001;
 
     while (tryNumber < 1000) // set a very hard limit just in case
     {
