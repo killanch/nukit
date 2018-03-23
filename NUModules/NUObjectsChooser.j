@@ -349,4 +349,10 @@ var NUObjectsChooser_categoryForObject_                 = 1 << 1,
         [_delegate didObjectChooser:self selectObjects:selectedObjects];
 }
 
+/*! This masks viewGettingStarted
+*/
+- (void)_manageGettingStartedVisibility
+{
+}
+
 @end
