@@ -75,7 +75,7 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
         [_buttonAssignObject setAlternateImage:NUSkinImageButtonLinkAlt];
         [_buttonAssignObject setButtonType:CPMomentaryChangeButton];
         [_buttonAssignObject setTarget:self];
-        [_buttonAssignObject setAction:@selector(openAssignObjectPopover:)];
+        [_buttonAssignObject setAction:@selector(openAssignConfirmation:)];
         [self registerControl:_buttonAssignObject forAction:NUModuleAssignationActionAssign];
 
         _buttonUnassignObject = [CPButtonBar minusButton];
@@ -235,14 +235,14 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
 
 /*! Opens the assign object confirmation window
 */
-- (@action)openAssignObjectPopover:(id)aSender
+- (@action)openAssignConfirmation:(id)aSender
 {
     var popoverAssignConfirmation = [[NUKit kit] registeredDataViewWithIdentifier:@"popoverAssignConfirmation"],
         buttonConfirm = [[[popoverAssignConfirmation contentViewController] view] subviewWithTag:@"confirm"],
         relativeRect;
 
     [buttonConfirm setTarget:self];
-    [buttonConfirm setAction:@selector(openObjectsChooser:)];
+    [buttonConfirm setAction:@selector(openAssignObjectPopover:)];
     _cucappID(buttonConfirm, @"button_popover_confirm_assign");
 
     [popoverAssignConfirmation showRelativeToRect:relativeRect ofView:aSender preferredEdge:CPMinYEdge];
@@ -251,7 +251,7 @@ NUModuleAssignationActionUnassign = @"NUModuleAssignationctionUnassign";
 
 /*! Opens the assign object chooser
 */
-- (void)openObjectsChooser:(id)aSender
+- (void)openAssignObjectPopover:(id)aSender
 {    
     var action = [aSender isKindOfClass:CPMenuItem] ? [self actionForMenuItem:aSender] : [self actionForControl:aSender];
 
